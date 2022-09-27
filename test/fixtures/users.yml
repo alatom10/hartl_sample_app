@@ -7,8 +7,3 @@
 # two:
 #   name: MyString
 #   email: MyString
-#note use spaces not tabs for fixture indentation
-michael:
- name: Michael Example
- email: michael@example.com
- password_digest: <%= User.digest('password') %>
