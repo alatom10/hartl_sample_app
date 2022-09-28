@@ -14,7 +14,9 @@ module SessionsHelper
     # Returns the user corresponding to the remember token cookie.
   def current_user
     if (user_id = session[:user_id]) # reads as if user_id in sessions is not null then assign it to user_id
-      @current_user ||= User.find_by(id: user_id)
+      user = User.find_by(id: user_id)
+      # @current_user ||= User.find_by(id: user_id) ex 9.3.2
+      @current_user ||= user if session[:session_token] == user.session_token
     elsif (user_id = cookies.encrypted[:user_id])
       user = User.find_by(id: user_id)
       if user && user.authenticated?(cookies[:remember_token])
