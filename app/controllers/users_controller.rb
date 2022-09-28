@@ -13,6 +13,8 @@ class UsersController < ApplicationController
   def create
     @user = User.new(user_params)
     if @user.save
+      reset_session
+      log_in @user
       flash[:success] = "Welcome to the Sample App!"
       redirect_to @user
       # redirect_to user_url(@user) we could have used this as well but rails automatically knows we want the user_url above

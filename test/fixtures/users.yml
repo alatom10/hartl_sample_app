@@ -7,3 +7,9 @@
 # two:
 #   name: MyString
 #   email: MyString
+
+#note to use spaces and not tabs for indentations in yml files
+michael:
+ name: Michael Example
+ email: michael@example.com
+ password_digest: <%= User.digest('password') %>
