@@ -12,7 +12,7 @@ class SessionsController < ApplicationController
       log_in @user
       # remember user #removed in 9.2 to cater for remem me checkbox
       params[:session][:remember_me] == '1' ? remember(@user) : forget(@user)
-      session[:session_token] = user.session_token
+      session[:session_token] = @user.session_token
       redirect_to @user
     else
         # Create an error message.
