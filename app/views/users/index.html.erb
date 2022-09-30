@@ -1,10 +1,15 @@
 <% provide(:title, 'All users') %>
  <h1>All users</h1>
+
+  <%= will_paginate %>
 <ul class="users">
-    <% @users.each do |user| %>
-        <li>
-            <%= gravatar_for user, size: 50 %> 
-            <%= link_to user.name, user %>
-        </li>
-     <% end %>
-</ul>
+    <%# <% @users.each do |user| %>
+        <%# <li> %>
+            <%# <%= render user %>  
+            <%# instead of using a partial like above we can call it directly on the users like below %>
+        <%# </li> %>
+     <%# <% end %> 
+     <%# </ul> %>
+     <%= render @users %>
+     <%# line Above => Here Rails infers that @users is a list of User objects; moreover, when called with a collection of users, Rails automatically iterates through them and renders each one with the _user.html.erb partial (inferring the name of the partial from the name of the class).  %>
+<%= will_paginate %>
