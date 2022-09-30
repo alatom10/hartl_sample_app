@@ -19,7 +19,7 @@ class User < ApplicationRecord
                 # uniqueness: { case_sensitive: false } #Rails infers that uniqueness should be true as well.
 
     has_secure_password
-    validates :password, presence: true, length: { minimum: 6 }, allow_nil: true
+    validates :password, presence: true, length: { minimum: 6 }, allow_nil: true #note that even though allow_nil is set, our has_secure_password method prevents null passwords but this allows updates to be null if a user edits their profile but not password
     
     # Returns the hash digest of the given string.
     def User.digest(string)
