@@ -1,4 +1,5 @@
 class User < ApplicationRecord
+    has_many :microposts
     # before_save { self.email = email.downcase }
     # before_save { email.downcase! } # alternartive way of writing the above
     #  the above save was removed in 11.1 pg 629 and replaced with a method reference as below
