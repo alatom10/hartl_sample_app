@@ -5,7 +5,8 @@ class UsersController < ApplicationController
   
   def index 
     # @users = User.all
-    @users = User.paginate(page: params[:page]) # pagination implemented, params[:page] is automatically gen'd by will_paginate
+    # @users = User.paginate(page: params[:page]) # pagination implemented, params[:page] is automatically gen'd by will_paginate
+    @users = User.where(activated: true).paginate(page: params[:page])
   end
 
   def destroy
@@ -16,7 +17,7 @@ class UsersController < ApplicationController
 
   def show
     @user = User.find(params[:id])
-    
+    redirect_to root_url and return unless @user.activated
     # debugger
   end
   
@@ -28,11 +29,15 @@ class UsersController < ApplicationController
   def create
     @user = User.new(user_params)
     if @user.save
-      reset_session #removed in chp 10 pg 558
-      log_in @user
-      flash[:success] = "Welcome to the Sample App!"
-      redirect_to @user
+      # reset_session #removed in chp 10 pg 558
+      # log_in @user
+      # flash[:success] = "Welcome to the Sample App!"
+      # redirect_to @user
       # redirect_to user_url(@user) we could have used this as well but rails automatically knows we want the user_url above
+      # the above was removed due to email activation that was set up in chp 11 pg 646
+      @user.send_activation_email
+      flash[:info] = "Please check your email to activate your account."
+      redirect_to root_url
     else
       render 'new'
     end
