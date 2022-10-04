@@ -99,6 +99,12 @@ class User < ApplicationRecord
         reset_sent_at < 2.hours.ago
     end
 
+    # Defines a proto-feed.
+# See "Following users" for the full implementation. 
+    def feed
+        Micropost.where("user_id = ?", id) #the question mark ensures that id is properly escaped before being included in the sql query, avoiding sql injection
+    end
+
     private
     # Converts email to all lower-case.
         def downcase_email
