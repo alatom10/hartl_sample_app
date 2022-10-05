@@ -32,6 +32,7 @@ Rails.application.routes.draw do
   resources :account_activations, only: [:edit]
   resources :password_resets, only: [:new, :create, :edit, :update] #pg 680
   resources :microposts, only: [:create, :destroy] #pg 758
+  resources :relationships, only: [:create, :destroy] #pg 861
 
   # For details on the DSL available within this file, see https://guides.rubyonrails.org/routing.html
   # root 'application#hello'
