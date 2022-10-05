@@ -1,4 +1,5 @@
 class User < ApplicationRecord
+    has_many :microposts, dependent: :destroy # dependent: :destroy is similar to on delete cascade, if a user is destroyed then destroy the microposts
     # before_save { self.email = email.downcase }
     # before_save { email.downcase! } # alternartive way of writing the above
     #  the above save was removed in 11.1 pg 629 and replaced with a method reference as below
@@ -96,6 +97,12 @@ class User < ApplicationRecord
     # Returns true if a password reset has expired. 
     def password_reset_expired?
         reset_sent_at < 2.hours.ago
+    end
+
+    # Defines a proto-feed.
+# See "Following users" for the full implementation. 
+    def feed
+        Micropost.where("user_id = ?", id) #the question mark ensures that id is properly escaped before being included in the sql query, avoiding sql injection
     end
 
     private
