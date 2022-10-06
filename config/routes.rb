@@ -16,10 +16,23 @@ Rails.application.routes.draw do
   get    '/login',   to: 'sessions#new'
   post   '/login',   to: 'sessions#create'
   delete '/logout',  to: 'sessions#destroy'
-  resources :users
+  resources :users do #pg 855 
+    member do
+      get :following, :followers
+    end
+  end
+
+  # this is the other possibility that gets the url without the id
+  # resources :users do
+  #   collection do
+  #     get :tigers
+  #   end
+  # end
+  # 
   resources :account_activations, only: [:edit]
   resources :password_resets, only: [:new, :create, :edit, :update] #pg 680
   resources :microposts, only: [:create, :destroy] #pg 758
+  resources :relationships, only: [:create, :destroy] #pg 861
 
   # For details on the DSL available within this file, see https://guides.rubyonrails.org/routing.html
   # root 'application#hello'

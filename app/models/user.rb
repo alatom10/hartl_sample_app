@@ -7,6 +7,15 @@ class User < ApplicationRecord
     before_save :downcase_email
     before_create :create_activation_digest
 
+    has_many :passive_relationships, class_name: "Relationship", foreign_key: "followed_id", dependent: :destroy 
+    has_many :followers, through: :passive_relationships, source: :follower
+    # has_many :followers, through: :passive_relationships # the above can be written like this as rails will automatically singularize followers correctly
+    
+    has_many :active_relationships, class_name: "Relationship", foreign_key: "follower_id", dependent: :destroy 
+    # has_many :followeds, through: :active_relationships, source: :followed #Rails would see “followeds” and use the singular “followed”, assembling a col- lection using the followed_id in the relationships table.
+    # we overwrite the above default by writing a folloing method to get the below
+    has_many :following, through: :active_relationships, source: :followed
+
     validates :name, presence: true, length: { maximum: 50 }
     #note the above is the same as: validates(:name, prescence: true)
 
@@ -102,7 +111,34 @@ class User < ApplicationRecord
     # Defines a proto-feed.
 # See "Following users" for the full implementation. 
     def feed
-        Micropost.where("user_id = ?", id) #the question mark ensures that id is properly escaped before being included in the sql query, avoiding sql injection
+        # Micropost.where("user_id = ?", id) #the question mark ensures that id is properly escaped before being included in the sql query, avoiding sql injection
+        # Micropost.where("user_id IN (?) OR user_id = ?", following_ids, id) #pg 896, see pg 895 for explanation on following_ids. its equivalent to >> User.first.following.map(&:id) . Because of the has_many association rails knows to link following_ids to the correct db item
+        # Micropost.where("user_id IN (:following_ids) OR user_id = :user_id", following_ids: following_ids, user_id: id) # pg 897
+        
+        #pg899 using a sql subquery
+        # following_ids = "SELECT followed_id FROM relationships WHERE follower_id = :user_id"
+        # Micropost.where("user_id IN (#{following_ids})
+        #                 OR user_id = :user_id", user_id: id)
+        
+        #pg 903 using a join 
+        part_of_feed = "relationships.follower_id = :id or microposts.user_id = :id"
+        Micropost.left_outer_joins(user: :followers).where(part_of_feed, { id: id })
+
+    end
+
+     # Follows a user.
+    def follow(other_user)
+        following << other_user
+    end
+    
+    # Unfollows a user.
+    def unfollow(other_user)
+        following.delete(other_user)
+    end
+
+    # Returns true if the current user is following the other user.
+    def following?(other_user)
+        following.include?(other_user)
     end
 
     private

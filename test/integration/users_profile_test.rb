@@ -15,6 +15,7 @@ class UsersProfileTest < ActionDispatch::IntegrationTest
     assert_select 'h1>img.gravatar'
     assert_match @user.microposts.count.to_s, response.body #despite its name, response.body contains the full HTML source of the page (and not just the page’s body).
     assert_select 'div.pagination' , count: 1
+    assert_select 'div.stats' , count: 1
     @user.microposts.paginate(page: 1).each do |micropost|
       assert_match micropost.content, response.body 
     end
