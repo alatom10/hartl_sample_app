@@ -111,7 +111,19 @@ class User < ApplicationRecord
     # Defines a proto-feed.
 # See "Following users" for the full implementation. 
     def feed
-        Micropost.where("user_id = ?", id) #the question mark ensures that id is properly escaped before being included in the sql query, avoiding sql injection
+        # Micropost.where("user_id = ?", id) #the question mark ensures that id is properly escaped before being included in the sql query, avoiding sql injection
+        # Micropost.where("user_id IN (?) OR user_id = ?", following_ids, id) #pg 896, see pg 895 for explanation on following_ids. its equivalent to >> User.first.following.map(&:id) . Because of the has_many association rails knows to link following_ids to the correct db item
+        # Micropost.where("user_id IN (:following_ids) OR user_id = :user_id", following_ids: following_ids, user_id: id) # pg 897
+        
+        #pg899 using a sql subquery
+        # following_ids = "SELECT followed_id FROM relationships WHERE follower_id = :user_id"
+        # Micropost.where("user_id IN (#{following_ids})
+        #                 OR user_id = :user_id", user_id: id)
+        
+        #pg 903 using a join 
+        part_of_feed = "relationships.follower_id = :id or microposts.user_id = :id"
+        Micropost.left_outer_joins(user: :followers).where(part_of_feed, { id: id })
+
     end
 
      # Follows a user.
